@@ -8,9 +8,8 @@ best<-function(state,outcome){
     }
     if (!outcome=="heart attack"&&!outcome=="heart failure"&&!outcome=="pneumonia"){
         print("invalid outcome")
-    }
-    
-    ##return the hospital name in that state with lowest 30-day
+    break}
+        ##return the hospital name in that state with lowest 30-day
     ##death rate---------
     
     ##group the data by state and form a list
@@ -20,35 +19,48 @@ best<-function(state,outcome){
     ##converting the list to dataframe
     state_col<-data.frame(state_col)
     
-    ##finding the disease to be analysed
-    if(outcome=="heart attack"){d_col<-state_col[11]}
-    if(outcome=="heart failure"){d_col<-state_col[17]}
-    if(outcome=="pneumonia"){d_col<-state_col[23]}
+    ##finding the disease and hospital names to be analysed
+    if(outcome=="heart attack"){d_col<-state_col[,c(2,11)]}
+    if(outcome=="heart failure"){d_col<-state_col[,c(2,17)]}
+    if(outcome=="pneumonia"){d_col<-state_col[,c(2,23)]}
     
-    ##remove the na
-    bad<-is.na(d_col)
-    d_col<-d_col[!bad]
+    ##remove the na(replacing all "Not Available" with NA!)
+    d_col[d_col=="Not Available"]= NA
+    ##check completed cases
+    
+    good<-complete.cases(d_col)
+    d_col<-d_col[good,]
+
+    
+    d_col[,2]<-as.numeric(d_col[,2])
+    print(min(d_col[,2]))
     
     ##finding the index values where the death rates are lowest
     ##and turn that to a list
-    lowest_index<-which(d_col==min(d_col))
+    lowest_index<-which(d_col[,2]==min(d_col[,2]))
     print(lowest_index)
     
-    ##assign the lowest value to the hospital name row
-    result<-state_col[c(lowest_index),]
-    ##convert the result to a dataframe
-    result<-data.frame(result)
+    ##assign the lowest value to the hospital name row(changing the state to d!)
+    ##na values has been removed, which means rows numbers are different
+    hospital<-d_col[,1]
+    
+    ##convert hospital names to a dataframe
+    hospital<-data.frame(hospital)
+    
+    hospital<-hospital[c(lowest_index),]
+    print(hospital)
+    
     
     ##finding hospitals' names (in a dataframe)
-    result<-result[2]
+    hospital<-hospital[1]
     
     ##handling ties by name in an alphabetical order
     ##coverting the dataframe to character using"[[]]"
-    result<-result[[1]]
-    print(class(result))
-    print(result)
+    hospital<-hospital[[1]]
+    print(class(hospital))
+    print(hospital)
     
     ##sort the character using "sort"
-    result<-sort(result)
-    print(result[1])
+    result<-sort(hospital)
+    print(hospital[1])
 }
