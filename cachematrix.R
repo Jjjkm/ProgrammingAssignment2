@@ -1,34 +1,51 @@
-## 2 functions cache the inverse of a matrix
-
-## The 1st function creates a matrix object and cache its inverse
-
-makeCacheMatrix <- function(x = matrix()) {
-    ma <- NULL
-    set <- function(y) {
-        x <<- y
-        ma <<- NULL
+best<-function(state,outcome){
+    ##read the outcome-of-care-measures.csv
+    data<-read.csv("outcome-of-care-measures.csv")
+    
+    ##check that state and outcome are valid
+    if(!state%in%data$State){
+        print("invalid state") 
     }
-    get <- function() x
-    setinvmatrix <- function(inverse) ma <<- inverse
-    getinvmatrix <- function() ma
-    list(set = set, get = get,
-         setinvmatrix = setinvmatrix,
-         getinvmatrix = getinvmatrix)
-}
-
-
-## The 2nd function inverses the matrix provided above and cache it.
-
-cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
-    ma <- x$getinvmatrix()
-    if(!is.null(ma)) {
-        message("getting cached data")
-        return(ma)
+    if (!outcome=="heart attack"&&!outcome=="heart failure"&&!outcome=="pneumonia"){
+        print("invalid outcome")
     }
-    data <- x$get()
-    ma <- solve(data, ...)
-    x$setinvmatrix(ma)
-    ma
+    
+    ##return the hospital name in that state with lowest 30-day
+    ##death rate---------
+    
+    ##group the data by state and form a list
+    s<-split(data,data$State)
+    ##specify the state data to be analysed by subsetting the list
+    state_col<-s[state]
+    ##converting the list to dataframe
+    state_col<-data.frame(state_col)
+    
+    ##finding the disease to be analysed
+    if(outcome=="heart attack"){d_col<-state_col[11]}
+    if(outcome=="heart failure"){d_col<-state_col[17]}
+    if(outcome=="pneumonia"){d_col<-state_col[23]}
+    
+    ##remove the na
+    bad<-is.na(d_col)
+    d_col<-d_col[!bad]
+    
+    ##finding the index values where the death rates are lowest
+    ##and turn that to a list
+    lowest_index<-which(d_col==min(d_col))
+    print(lowest_index)
+    
+    ##assign the lowest value to the hospital name row
+    result<-state_col[c(lowest_index),]
+    ##convert the result to a dataframe
+    result<-data.frame(result)
+    
+    ##finding hospitals' names
+    result<-result[2]
+    result<-list(result)
+    
+    ##handling ties by name in an alphabetical order
+    sort(result)
+    
+    result
     
 }
