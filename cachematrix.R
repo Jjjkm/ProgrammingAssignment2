@@ -39,13 +39,16 @@ best<-function(state,outcome){
     ##convert the result to a dataframe
     result<-data.frame(result)
     
-    ##finding hospitals' names
+    ##finding hospitals' names (in a dataframe)
     result<-result[2]
-    result<-list(result)
     
     ##handling ties by name in an alphabetical order
-    sort(result)
+    ##coverting the dataframe to character using"[[]]"
+    result<-result[[1]]
+    print(class(result))
+    print(result)
     
-    result
-    
+    ##sort the character using "sort"
+    result<-sort(result)
+    print(result[1])
 }
