@@ -64,3 +64,70 @@ best<-function(state,outcome){
     result<-sort(hospital)
     print(hospital[1])
 }
+
+##question 3--------------------------------------------------------
+rankhospital<-function(state,outcome,num="best"){
+    data<-as.data.frame(cbind())
+    ## Read outcome data
+    data<-read.csv("outcome-of-care-measures.csv",
+                   colClasses ="character",header=T )
+    
+    ##generate a new df to get the data we're interested in
+    data<-as.data.frame(cbind(data[,2], # hospital 
+                              data[,7], #state
+                              data[,11], #heart attack
+                              data [,17], #heart failure
+                              data[,23]#pneumonia
+    ),stringsAsFactors = FALSE)
+    
+    colnames(data)<-c("hospital","state","heart attack","heart failure","pneumonia"
+    )
+    
+    ## Check that state and outcome are valid.
+    if (!state%in%data$state){
+        stop("invaild state")
+    }
+    if (!outcome%in%c("heart attack","heart failure","pneumonia")){
+        stop("invaild outcome")
+    }
+    
+    ## Return hospital n-------------
+    ##get the state interested in
+    data<-data[which(data$state==state),]
+    
+    ##get the outcome interested in
+    if (outcome=="heart attack"){data<-data[,c(1,3)]}
+    if (outcome=="heart failure"){data<-data[,c(1,4)]}
+    if (outcome=="pneumonia"){data<-data[,c(1,5)]}
+    
+    ##remove the na(first convert to numeric values!) and find completed cases
+    data[,2]<-as.numeric(data[,2])
+    good<-complete.cases(data)
+    data<-data[good,]
+    
+    
+    ##rank the hospitals and sort alphabetically using the 2nd argument
+    data<-data[order(data[,2],data$hospital),]
+    data
+    
+    
+    ##find out three conditions: best worst and num
+    ##and access the ranking
+    if (num=="best"){
+        result<-data$hospital[1]
+    }
+    if (num=="worst"){
+        data<-data[order(data[,2],decreasing = TRUE),]
+        print(data)
+        result<-data$hospital[1]
+        
+    }
+    else{
+        ##figure out if the num input is larger than reality
+        if (num>nrow(data)){stop(NA)}
+        result<-data$hospital[num]
+    }
+    
+    print(result)
+    
+}
