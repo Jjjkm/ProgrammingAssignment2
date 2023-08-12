@@ -65,7 +65,7 @@ best<-function(state,outcome){
     print(hospital[1])
 }
 
-##question 3--------------------------------------------------------
+##question 3---------------------------------------------------------
 rankhospital<-function(state,outcome,num="best"){
     data<-as.data.frame(cbind())
     ## Read outcome data
