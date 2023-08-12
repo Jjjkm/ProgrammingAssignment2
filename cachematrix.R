@@ -131,3 +131,88 @@ rankhospital<-function(state,outcome,num="best"){
     print(result)
     
 }
+
+assign3--------------------------
+    rankall <- function(outcome, num = "best") {
+        ## Read outcome data.
+        data<-read.csv("outcome-of-care-measures.csv",
+                       colClasses ="character",header=T )
+        
+        ##generate a new df to get the data we're interested in
+        data<-as.data.frame(cbind(data[,2], # hospital 
+                                  data[,7], #state
+                                  data[,11], #heart attack
+                                  data [,17], #heart failure
+                                  data[,23]#pneumonia
+        ),stringsAsFactors = FALSE)
+        
+        colnames(data)<-c("hospital","state","heart attack","heart failure","pneumonia"
+        )
+        
+        ## Check that state and outcome are valid
+        if (!outcome%in%c("heart attack","heart failure","pneumonia")){
+            stop("invaild outcome")
+        }
+        
+        ##get the outcome interested in
+        if (outcome=="heart attack"){data<-data[,c(1,2,3)]}
+        if (outcome=="heart failure"){data<-data[,c(1,2,4)]}
+        if (outcome=="pneumonia"){data<-data[,c(1,2,5)]}
+        
+        
+        ##clean NA values for outcome
+        ##first as.numeric the outcome
+        data[,3]<-as.numeric(data[,3])
+        ##2nd find completed cases
+        good<-complete.cases(data)
+        data<-data[good,]
+        
+        ## For each state, find the hospital of the given rank
+        ##split the data by state
+        
+        data<-split(data,data$state)
+        
+        ##order every state data
+        data<-lapply(data,function(x) x[order(x[,3],x$hospital),])
+        
+        
+        ##figure out the arguments
+        if (num=="best"){
+            num<-1
+        }
+        
+        if (num=="worst"){
+            ##reverse the order!!!
+            data<-lapply(data,function(x) x[order(x[,3],decreasing = T),])
+            num<-1
+        }
+        
+        ##find the hospital n state of the given rank
+        data<-sapply(data,function(x)c(x[num,c(1,2)]))
+        
+        ##transpose the data to make the state as rows
+        data<-data%>%t()%>%as.data.frame()
+        ##make the second column the row names of data
+        data[,2]<-rownames(data)
+        
+        
+        data
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
